@@ -1,25 +1,20 @@
 import InputTodo from './InputTodo';
 import TodosList from './TodosList';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const TodosLogic = () => {
-  const [todos, setTodos] = useState([
-    {
-      id: 1,
-      title: 'Setup development environment',
-      completed: true,
-    },
-    {
-      id: 2,
-      title: 'Develop website and add content',
-      completed: false,
-    },
-    {
-      id: 3,
-      title: 'Deploy to live server',
-      completed: false,
-    },
-  ]);
+  const [todos, setTodos] = useState(getInitialTodos());
+
+  useEffect(() => {
+    const temp = JSON.stringify(todos);
+    localStorage.setItem('todos', temp);
+  }, [todos]);
+
+  function getInitialTodos() {
+    const tempItem = localStorage.getItem('todos');
+    const savedTodos = JSON.parse(tempItem);
+    return savedTodos || [];
+  }
 
   const delTodo = (id) => {
     console.log('deleted', id);
@@ -34,10 +29,26 @@ const TodosLogic = () => {
     };
     setTodos([...todos, newTodo]);
   };
+
+  const setUpdate = (updatedTitle, id) => {
+    setTodos(
+      todos.map((todo) => {
+        if (todo.id === id) {
+          todo.title = updatedTitle;
+        }
+        return todo;
+      })
+    );
+  };
   return (
     <div>
       <InputTodo addTodo={addTodo} />
-      <TodosList todos={todos} setTodos={setTodos} delTodo={delTodo} />
+      <TodosList
+        todos={todos}
+        setTodos={setTodos}
+        delTodo={delTodo}
+        setUpdate={setUpdate}
+      />
     </div>
   );
 };
